@@ -1,5 +1,5 @@
 import random
-
+import scipy.stats
 import numpy as np
 
 
@@ -21,6 +21,7 @@ def solve_cramer(arr, ins, pos):
 
 def get_dispersion(y, y_r):
     return [round(sum([(y[i][j] - y_r[i]) ** 2 for j in range(len(y[i]))]) / 3, 3) for i in range(len(y_r))]
+
 def cochrane(dispersion, m):
     gp = max(dispersion) / sum(dispersion)
     gt = [.9065, .7679, .6841, .6287, .5892, .5598, .5365, .5175, .5017, .4884]
@@ -28,30 +29,25 @@ def cochrane(dispersion, m):
         return [round(gp, 4), gt[m - 2]]
     else:
         return
-def student(dispersion, m, y_r, x_n):
-    table = {
-        8: 2.306,
-        12: 2.179,
-        16: 2.120,
-        20: 2.086,
-        24: 2.064,
-        28: 2.048,
-        'inf': 1.960
-    }
-    x_n_t = x_n.T
-    n = len(y_r)
-    sb = sum(dispersion) / len(y_r)
-    s_beta = (sb / (m * n)) ** (1 / 2)
-    beta = [sum([y_r[j] * x_n_t[i][j] for j in range(n)]) / n for i in range(n)]
-    t = [abs(beta[i]) / s_beta for i in range(len(beta))]
-    f3 = n * (m - 1)
-    if f3 > 30:
-        t_t = table['inf']
-    elif f3 > 0:
-        t_t = table[f3]
-    else:
-        return
-    return [True if i < t_t else False for i in t]
+
+def student(dispersion_reproduction, m, y_mean, xn):
+    dispersion_statistic_mark = (dispersion_reproduction / (4 * m)) ** 0.5
+
+    beta = [1 / 4 * sum(y_mean[j] for j in range(4))]
+    for i in range(3):
+        b = 0
+        for j in range(4):
+            b += y_mean[j] * xn[j][i]
+        beta.append(1 / 4 * b)
+
+    t = []
+    for i in beta:
+        t.append(abs(i) / dispersion_statistic_mark)
+
+    check_st = scipy.stats.t.ppf((1 + 0.95)/2, (m-1) * 4)
+
+    return t[0] > check_st, t[1] > check_st, t[2] > check_st, t[3] > check_st
+
 def fisher(y_r, y_st, b_det, dispersion, m):
     table = {
         8: [5.3, 4.5, 4.1, 3.8, 3.7, 3.6],
@@ -125,8 +121,8 @@ def simulate_experiment(m, min_x1, max_x1, min_x2, max_x2, min_x3, max_x3):
 
     b_set = np.array([my, a1, a2, a3])
     b = [solve_cramer(b_delta, b_set, i) for i in range(N)]
-
-    b_det = student(dispersion, m, y_r, x_normalized)
+    disp = sum(dispersion) / 4
+    b_det = student(disp, m, y_r, x_normalized)
     b_cut = b.copy()
     if b_det is None:
         raise ValueError('Потрібно провести більше експериментів.')
