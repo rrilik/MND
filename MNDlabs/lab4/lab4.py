@@ -6,8 +6,10 @@ import sklearn.linear_model as lm
 from numpy.linalg import solve
 from scipy.stats import f, t
 
+counter = 0
 
 class LaboratoryWorkN4:
+
     def __init__(self, n_number: int, m_number: int, *x_args: Tuple[int, int]):
         self.n, self.m = n_number, m_number
         self.x_range = [element for element in x_args]
@@ -175,6 +177,7 @@ class LaboratoryWorkN4:
             print('\tМатематична модель не адекватна експериментальним даним')
             return False
 
+
     def with_interaction_effect(self):
         x, y, x_normalized = self.planing_matrix_interaction_effect()
         y_average = [round(sum(i) / len(i), 3) for i in y]
@@ -282,11 +285,13 @@ class LaboratoryWorkN4:
         f4 = self.n - d
         fp = self.fisher_criterion(y, y_average, y_new, d, dispersion_list)
         ft = f.ppf(dfn=f4, dfd=f3, q=1 - 0.05)
+        counter = 0
 
         print('Перевірка адекватності за критерієм Фішера:')
         print(f'\tРозрахункове значення критерія Фішера: Fp = {fp}')
         print(f'\tТабличне значення критерія Фішера: Ft = {ft}')
         if fp < ft:
+            counter += 1
             print('\tМатематична модель адекватна експериментальним даним')
             return True
         else:
@@ -295,8 +300,9 @@ class LaboratoryWorkN4:
 
 
 # Точка входу в програму
-if __name__ == '__main__':
+for k in range(1, 100):
     n, m = 8, 3
     x1, x2, x3 = (-15, 45), (-70, -10), (15, 30)
     worker = LaboratoryWorkN4(n, m, x1, x2, x3)
     worker.run()
+    print(counter)
