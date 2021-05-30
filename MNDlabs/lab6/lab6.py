@@ -207,7 +207,7 @@ class LaboratoryWorkN6:
         fp = sad / sb
         f4 = self.n - d
         print(f'\tFp = {fp}')
-        if fp < f.ppf(q=0.95, dfn=f4, dfd=f3):
+        if fp < f.ppf(q=0.9, dfn=f4, dfd=f3):
             print('\tРівняння регресії адекватне.')
         else:
             print('\tРівняння регресії не є адекватним.')
