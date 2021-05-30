@@ -18,11 +18,10 @@ reference_y = coefficient[0] + coefficient[1] * x0[0] + coefficient[2] * x0[1] +
 
 min_y = math.inf
 min_y_index = 0
+k = 100
 for i in range(len(y)):
-    element = (y[i] - reference_y) ** 2
-    if element < min_y:
-        min_y = element
-        min_y_index = i
+    if y[i] > reference_y and y[i] < k:
+        k = y[i]
 
 print(f'Список довільно вибраних коефіцієнтів: {coefficient}')
 print(f'Матриця планування: {x}')
@@ -31,4 +30,4 @@ print(f'Центральні моменти експерименту: {x0}')
 print(f'Інтервали зміни фактора: {dx}')
 print(f'Матриця нормалізованих значень X: {normalized_x}')
 print(f'Значення функції відгуку для нульових рівнів факторів (еталонний Y): {reference_y}')
-print(f'Для варіанту #214: min((Y - Yет)²) = {min_y}; точка плану, що задовольняє критерій вибору оптимальності: {x[min_y_index]}')
+print(f'Для варіанту #220: max((Y - Yет)²) = {min_y}; точка плану, що задовольняє критерій вибору оптимальності: {x[min_y_index]}')
